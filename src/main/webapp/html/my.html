@@ -3,9 +3,60 @@
     <title>RPG</title>
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
     <link href="/css/my.css" rel="stylesheet">
+    <meta charset="utf-8"/>
 </head>
 <body>
 <h1>RPG admin panel</h1>
+<table id="table-players">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Title</th>
+        <th>Race</th>
+        <th>Profession</th>
+        <th>Level</th>
+        <th>Birthday</th>
+        <th>Banned</th>
+    </tr>
+    </thead>
+    <tbody>
 
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: "rest/players/",
+            method: "get",
+            dataType: 'json',
+            success: function (data) {
+                // Очищаем тело таблицы
+                $('#table-players tbody').empty();
+
+                $.each(data, function (index, item) {
+                    let date = new Date(item.birthday),
+                        year = '' + date.getFullYear(),
+                        month = '' + (date.getMonth() + 1),
+                        day = '' + date.getDate();
+                    let formatDate = [month, day, year].join('/');
+
+                    let row = $('<tr>');
+                    row.append($('<td>').text(item.id));
+                    row.append($('<td>').text(item.name));
+                    row.append($('<td>').text(item.title));
+                    row.append($('<td>').text(item.race));
+                    row.append($('<td>').text(item.profession));
+                    row.append($('<td>').text(item.level));
+                    row.append($('<td>').text(formatDate));
+                    row.append($('<td>').text(item.banned));
+
+                    $('#table-players tbody').append(row);
+                })
+            }
+        })
+    })
+</script>
 </body>
 </html>
