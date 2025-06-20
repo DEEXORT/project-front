@@ -21,8 +21,9 @@
     </tr>
     </thead>
     <tbody>
-
     </tbody>
+
+    <div id="player-count"></div>
 </table>
 
 <script>
@@ -54,6 +55,18 @@
 
                     $('#table-players tbody').append(row);
                 })
+            }
+        })
+    })
+
+    // Не факт, что работает. Проверить!
+    $('document').ready(function() {
+        $.ajax({
+            url: "rest/players/count",
+            method: "get",
+            dataType: "text/plain",
+            success: function(data) {
+
             }
         })
     })
