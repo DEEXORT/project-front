@@ -7,6 +7,10 @@
 </head>
 <body>
 <h1>RPG admin panel</h1>
+<div>
+    <select name="select-count" id="count-per-page" onchange="updateTableControl()">
+    </select>
+</div>
 <table id="table-players">
     <thead>
     <tr>
@@ -24,39 +28,87 @@
 
     </tbody>
 </table>
+<div id="pagination">Pages:</div>
 
 <script>
+    let countPlayers = 0;
+    let countPerPage = 3;
+    let currentPage = 0;
+
     $(document).ready(function () {
+        $.ajax({
+            url: "rest/players/count",
+            method: "GET",
+            dataType: "text",
+            success: function (data) {
+                // data - количество игроков
+                countPlayers = data;
+                // Выпадающее меню с выбором отображаемого списка
+                for (let i = 3; i < 21; i++) {
+                    $('#count-per-page').append($('<option>').attr("value", i).text(i));
+                }
+                // Обновление таблицы и пагинации
+                updateTableControl();
+            }
+        })
+    })
+
+    function updateTableControl() {
+        countPerPage = $('#count-per-page').val(); // Обновление числа отображаемого списка
+        getPlayers(countPerPage); // Запрос на получение листа игроков
+        getCountPages(); // Обновление пагинации
+    }
+
+    function getPlayers(count) {
         $.ajax({
             url: "rest/players/",
             method: "get",
             dataType: 'json',
-            success: function (data) {
+            data: {
+                pageNumber: currentPage,
+                pageSize: count
+            },
+            success: function (response) {
                 // Очищаем тело таблицы
                 $('#table-players tbody').empty();
 
-                $.each(data, function (index, item) {
-                    let date = new Date(item.birthday),
+                $.each(response, function (index, player) {
+                    let date = new Date(player.birthday),
                         year = '' + date.getFullYear(),
                         month = '' + (date.getMonth() + 1),
                         day = '' + date.getDate();
                     let formatDate = [month, day, year].join('/');
 
                     let row = $('<tr>');
-                    row.append($('<td>').text(item.id));
-                    row.append($('<td>').text(item.name));
-                    row.append($('<td>').text(item.title));
-                    row.append($('<td>').text(item.race));
-                    row.append($('<td>').text(item.profession));
-                    row.append($('<td>').text(item.level));
+                    row.append($('<td>').text(player.id));
+                    row.append($('<td>').text(player.name));
+                    row.append($('<td>').text(player.title));
+                    row.append($('<td>').text(player.race));
+                    row.append($('<td>').text(player.profession));
+                    row.append($('<td>').text(player.level));
                     row.append($('<td>').text(formatDate));
-                    row.append($('<td>').text(item.banned));
+                    row.append($('<td>').text(player.banned));
 
                     $('#table-players tbody').append(row);
                 })
             }
         })
-    })
+    }
+
+    function getCountPages() {
+        // Очищаем предыдущее количество страниц
+        $('#pagination').empty();
+
+        $('#pagination').text("Pages");
+        // Задаем количество страниц в зависимости от выбранного отображаемого кол-ва игроков на странице
+        for (let i = 0; i <= (countPlayers / countPerPage); i++) {
+            $('#pagination').append($('<button>').text(i + 1).click(function () {
+                currentPage = i;
+                updateTableControl();
+            }));
+        }
+    }
+
 </script>
 </body>
 </html>
