@@ -8,7 +8,7 @@
 <body>
 <h1>RPG admin panel</h1>
 <div>
-    <select name="select-count" id="count-per-page" onchange="updateTableControl()">
+    <select name="select-count" id="count-per-page" onchange="currentPage = 0; updateTableControl()">
     </select>
 </div>
 <table id="table-players">
@@ -101,7 +101,7 @@
 
         $('#pagination').text("Pages");
         // Задаем количество страниц в зависимости от выбранного отображаемого кол-ва игроков на странице
-        for (let i = 0; i <= (countPlayers / countPerPage); i++) {
+        for (let i = 0; i < (countPlayers / countPerPage); i++) {
             $('#pagination').append($('<button>').text(i + 1).click(function () {
                 currentPage = i;
                 updateTableControl();
