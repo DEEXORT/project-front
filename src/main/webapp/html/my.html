@@ -101,16 +101,23 @@
                     row.append($('<td>').text(player.level));
                     row.append($('<td>').text(formatDate));
                     row.append($('<td>').text(player.banned));
-                    row.append($('<td>').append($('<button>').addClass("btn-img-edit")));
-                    row.append($('<td>').append($('<button>').addClass("btn-img-delete")))
+                    row.append($('<td>').append($('<button>').attr("id", "editBtnId").addClass("btn-img-edit")
+                        .click((event) => toggleBtnEdit(event.currentTarget))
+                    ));
+                    row.append($('<td>').append($('<button>').addClass("btn-img-delete")
                         .click(function () {
                             deletePlayer(player.id);
-                        });
+                        })));
 
                     $('#table-players tbody').append(row);
+
                 })
             }
         })
+    }
+
+    function toggleBtnEdit(button) {
+        $(button).toggleClass("checked");
     }
 
     function getCountPages() {

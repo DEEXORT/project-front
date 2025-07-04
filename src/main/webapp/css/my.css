@@ -17,6 +17,12 @@ table, th, td {
     height: 40px;
 }
 
+.btn-img-edit .checked {
+    background-image: url("/img/save.png");
+    width: 41px;
+    height: 40px;
+}
+
 .btn-img-delete {
     background-image: url("/img/delete.png");
     width: 40px;
