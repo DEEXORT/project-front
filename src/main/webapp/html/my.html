@@ -53,7 +53,6 @@
                 for (let i = 3; i < 21; i++) {
                     $('#count-per-page').append($('<option>').attr("value", i).text(i));
                 }
-                console.log("Received number of players: " + countPlayers)
                 calculateCountPerPage(); // Получение числа игроков на странице
                 getCountPages(); // Обновление пагинации
                 getPlayers(countPerPage); // Запрос на получение листа игроков
@@ -70,7 +69,6 @@
     function calculateCountPerPage() {
         // Обновление числа отображаемого списка
         countPerPage = $('#count-per-page').val();
-        console.log("Number of players on page: " + countPerPage)
     }
 
 
@@ -121,8 +119,6 @@
 
         $('#pagination').text("Pages");
         // Задаем количество страниц в зависимости от выбранного отображаемого кол-ва игроков на странице
-        console.log(countPlayers);
-        console.log(countPerPage);
         for (let i = 0; i < (countPlayers / countPerPage); i++) {
             const activePage = i === currentPage ? 'active' : '';
             $('#pagination').append($('<button>').addClass("page").addClass(activePage).text(i + 1).click(function () {
@@ -137,11 +133,9 @@
             method: "DELETE",
             url: `rest/players/${id}`,
             success: function () {
-                console.log("currentPage: " + currentPage)
-                console.log("countPlayers / countPerPage: " + Math.floor(countPlayers / countPerPage))
-                if (currentPage === Math.floor(countPlayers / countPerPage)) {
-                    console.log("Меняется значение")
-                    currentPage = currentPage - 1;
+                countPlayers -= 1;
+                if (currentPage === countPlayers / countPerPage) {
+                    currentPage -= 1;
                 }
                 getCountPlayers();
             }
