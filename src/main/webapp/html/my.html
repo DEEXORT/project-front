@@ -8,7 +8,7 @@
 <body>
 <h1>RPG admin panel</h1>
 <div>
-    <select name="select-count" id="count-per-page" onchange="currentPage = 0; updateTableControl()">
+    <select name="select-count" id="count-per-page" onchange="currentPage = 0; changeCountPerPage()">
     </select>
 </div>
 <table id="table-players">
@@ -22,6 +22,8 @@
         <th>Level</th>
         <th>Birthday</th>
         <th>Banned</th>
+        <th>Edit</th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody>
@@ -36,6 +38,10 @@
     let currentPage = 0;
 
     $(document).ready(function () {
+        getCountPlayers(); // Получение общего числа игроков
+    })
+
+    function getCountPlayers() {
         $.ajax({
             url: "rest/players/count",
             method: "GET",
@@ -47,17 +53,26 @@
                 for (let i = 3; i < 21; i++) {
                     $('#count-per-page').append($('<option>').attr("value", i).text(i));
                 }
-                // Обновление таблицы и пагинации
-                updateTableControl();
+                console.log("Received number of players: " + countPlayers)
+                calculateCountPerPage(); // Получение числа игроков на странице
+                getCountPages(); // Обновление пагинации
+                getPlayers(countPerPage); // Запрос на получение листа игроков
             }
         })
-    })
-
-    function updateTableControl() {
-        countPerPage = $('#count-per-page').val(); // Обновление числа отображаемого списка
-        getPlayers(countPerPage); // Запрос на получение листа игроков
-        getCountPages(); // Обновление пагинации
     }
+
+    function changeCountPerPage() {
+        calculateCountPerPage();
+        getCountPages(); // Обновление пагинации
+        getPlayers(countPerPage); // Запрос на получение листа игроков
+    }
+
+    function calculateCountPerPage() {
+        // Обновление числа отображаемого списка
+        countPerPage = $('#count-per-page').val();
+        console.log("Number of players on page: " + countPerPage)
+    }
+
 
     function getPlayers(count) {
         $.ajax({
@@ -88,6 +103,11 @@
                     row.append($('<td>').text(player.level));
                     row.append($('<td>').text(formatDate));
                     row.append($('<td>').text(player.banned));
+                    row.append($('<td>').append($('<button>').addClass("btn-img-edit")));
+                    row.append($('<td>').append($('<button>').addClass("btn-img-delete")))
+                        .click(function () {
+                            deletePlayer(player.id);
+                        });
 
                     $('#table-players tbody').append(row);
                 })
@@ -101,12 +121,31 @@
 
         $('#pagination').text("Pages");
         // Задаем количество страниц в зависимости от выбранного отображаемого кол-ва игроков на странице
+        console.log(countPlayers);
+        console.log(countPerPage);
         for (let i = 0; i < (countPlayers / countPerPage); i++) {
-            $('#pagination').append($('<button>').text(i + 1).click(function () {
+            const activePage = i === currentPage ? 'active' : '';
+            $('#pagination').append($('<button>').addClass("page").addClass(activePage).text(i + 1).click(function () {
                 currentPage = i;
-                updateTableControl();
+                changeCountPerPage();
             }));
         }
+    }
+
+    function deletePlayer(id) {
+        $.ajax({
+            method: "DELETE",
+            url: `rest/players/${id}`,
+            success: function () {
+                console.log("currentPage: " + currentPage)
+                console.log("countPlayers / countPerPage: " + Math.floor(countPlayers / countPerPage))
+                if (currentPage === Math.floor(countPlayers / countPerPage)) {
+                    console.log("Меняется значение")
+                    currentPage = currentPage - 1;
+                }
+                getCountPlayers();
+            }
+        })
     }
 
 </script>

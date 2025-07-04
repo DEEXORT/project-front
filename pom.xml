@@ -48,6 +48,8 @@
 				<artifactId>spring-aop</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
+
+
 		</dependencies>
 	</dependencyManagement>
 

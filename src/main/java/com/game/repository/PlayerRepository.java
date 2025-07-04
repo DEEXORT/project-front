@@ -55,6 +55,7 @@ public class PlayerRepository {
         add(new Player(49L, "Иллинас", "Иероглиф", Race.HOBBIT, Profession.WARRIOR, new Date(1240834120000L), false, 47));
         add(new Player(50L, "Ардонг", "Вспышк A", Race.HUMAN, Profession.WARRIOR, new Date(1217537160000L), false, 21));
         add(new Player(52L, "Аттирис", "и.о.Карвандоса", Race.ELF, Profession.SORCERER, new Date(1245050800000L), true, 34));
+//        add(new Player(52L, "Аттирис", "и.о.Карвандоса", Race.ELF, Profession.SORCERER, new Date(1245050800000L), true, 34));
     }};
 
     public List<Player> getAll(int pageNumber, int pageSize) {
