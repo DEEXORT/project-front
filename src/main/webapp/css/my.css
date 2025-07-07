@@ -15,9 +15,10 @@ table, th, td {
     background-image: url("/img/edit.png");
     width: 41px;
     height: 40px;
+
 }
 
-.btn-img-edit .checked {
+.btn-img-edit.checked {
     background-image: url("/img/save.png");
     width: 41px;
     height: 40px;

@@ -93,21 +93,23 @@
                     let formatDate = [month, day, year].join('/');
 
                     let row = $('<tr>');
-                    row.append($('<td>').text(player.id));
-                    row.append($('<td>').text(player.name));
-                    row.append($('<td>').text(player.title));
-                    row.append($('<td>').text(player.race));
-                    row.append($('<td>').text(player.profession));
-                    row.append($('<td>').text(player.level));
-                    row.append($('<td>').text(formatDate));
-                    row.append($('<td>').text(player.banned));
-                    row.append($('<td>').append($('<button>').attr("id", "editBtnId").addClass("btn-img-edit")
-                        .click((event) => toggleBtnEdit(event.currentTarget))
+                    row.append($('<td>').addClass("id").text(player.id));
+                    row.append($('<td>').addClass("name text-field").text(player.name));
+                    row.append($('<td>').addClass("title text-field").text(player.title));
+                    row.append($('<td>').addClass("race").text(player.race));
+                    row.append($('<td>').addClass("profession").text(player.profession));
+                    row.append($('<td>').addClass("level").text(player.level));
+                    row.append($('<td>').addClass("formatDate").text(formatDate));
+                    row.append($('<td>').addClass("banned").text(player.banned));
+                    row.append($('<td>').append($('<button>').addClass("btn-img-edit")
+                        .click(function (event, player) {
+                            toggleBtnEdit(event.currentTarget);
+                            switchToFormPlayer(event.currentTarget, player);
+                        })
                     ));
                     row.append($('<td>').append($('<button>').addClass("btn-img-delete")
-                        .click(function () {
-                            deletePlayer(player.id);
-                        })));
+                        .click(() => deletePlayer(player.id)
+                        )));
 
                     $('#table-players tbody').append(row);
 
@@ -117,7 +119,62 @@
     }
 
     function toggleBtnEdit(button) {
-        $(button).toggleClass("checked");
+        const $button = $(button);
+        const $deleteButton = $button.closest('tr').find('.btn-img-delete');
+
+        $button.toggleClass("checked");
+
+        if ($button.hasClass("checked")) {
+            $deleteButton.hide();
+        } else {
+            $deleteButton.show();
+        }
+    }
+
+    function transformToSelectField(button, classField, optionsArrayObject) {
+        // Преобразование поля classField в select
+        const $tdSelectField = $(button).closest('tr').find('.' + classField);
+        const valRace = $tdSelectField.text();
+
+        const $select = $('<select>');
+        $.each(optionsArrayObject, function (_, option) {
+            $select.append($('<option>', {
+                value: option.value,
+                text: option.text,
+                selected: option.text === valRace
+            }))
+        })
+        $tdSelectField.html($select);
+    }
+
+    function switchToFormPlayer(button, player) {
+        // Преобразование в Input поля - name и title
+        const $tdTextField = $(button).closest('tr').find('.text-field');
+        $tdTextField.each(function () {
+            const value = $(this).text();
+            $(this).html('<input type="text" value="' + value + '">');
+        });
+        const optionsRace = [
+            {value: "HUMAN", text: "HUMAN"},
+            {value: "DWARF", text: "DWARF"},
+            {value: "ELF", text: "ELF"},
+            {value: "GIANT", text: "GIANT"},
+            {value: "ORC", text: "ORC"},
+            {value: "TROLL", text: "TROLL"},
+            {value: "HOBBIT", text: "HOBBIT"}
+        ]
+        const optionsProfession = [
+            {value: "WARRIOR", text: "WARRIOR"},
+            {value: "ROGUE", text: "ROGUE"},
+            {value: "SORCERER", text: "SORCERER"},
+            {value: "CLERIC", text: "CLERIC"},
+            {value: "PALADIN", text: "PALADIN"},
+            {value: "NAZGUL", text: "NAZGUL"},
+            {value: "WARLOCK", text: "WARLOCK"},
+            {value: "DRUID", text: "DRUID"}
+        ]
+        transformToSelectField(button, "race", optionsRace);
+        transformToSelectField(button, "profession", optionsProfession);
     }
 
     function getCountPages() {
