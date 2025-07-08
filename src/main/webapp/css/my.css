@@ -18,7 +18,7 @@ table, th, td {
 
 }
 
-.btn-img-edit.checked {
+.btn-img-edit.editable {
     background-image: url("/img/save.png");
     width: 41px;
     height: 40px;

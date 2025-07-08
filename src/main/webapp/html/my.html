@@ -3,7 +3,7 @@
     <title>RPG</title>
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
     <link href="/css/my.css" rel="stylesheet">
-    <meta charset="utf-8"/>
+    <meta content="text/html" charset="utf-8"/>
 </head>
 <body>
 <h1>RPG admin panel</h1>
@@ -53,7 +53,7 @@
                 for (let i = 3; i < 21; i++) {
                     $('#count-per-page').append($('<option>').attr("value", i).text(i));
                 }
-                calculateCountPerPage(); // Получение числа игроков на странице
+                updateCountPerPage(); // Получение числа игроков на странице
                 getCountPages(); // Обновление пагинации
                 getPlayers(countPerPage); // Запрос на получение листа игроков
             }
@@ -61,12 +61,12 @@
     }
 
     function changeCountPerPage() {
-        calculateCountPerPage();
+        updateCountPerPage();
         getCountPages(); // Обновление пагинации
         getPlayers(countPerPage); // Запрос на получение листа игроков
     }
 
-    function calculateCountPerPage() {
+    function updateCountPerPage() {
         // Обновление числа отображаемого списка
         countPerPage = $('#count-per-page').val();
     }
@@ -85,6 +85,10 @@
                 // Очищаем тело таблицы
                 $('#table-players tbody').empty();
 
+                const $form = $('<form>', {
+                    method: "post"
+                });
+
                 $.each(response, function (index, player) {
                     let date = new Date(player.birthday),
                         year = '' + date.getFullYear(),
@@ -102,9 +106,8 @@
                     row.append($('<td>').addClass("formatDate").text(formatDate));
                     row.append($('<td>').addClass("banned").text(player.banned));
                     row.append($('<td>').append($('<button>').addClass("btn-img-edit")
-                        .click(function (event, player) {
-                            toggleBtnEdit(event.currentTarget);
-                            switchToFormPlayer(event.currentTarget, player);
+                        .click(function (event) {
+                            toggleBtnEdit(event.currentTarget, player);
                         })
                     ));
                     row.append($('<td>').append($('<button>').addClass("btn-img-delete")
@@ -118,16 +121,40 @@
         })
     }
 
-    function toggleBtnEdit(button) {
+    function updatePlayer(player) {
+        // Исключаем ненужные поля и передаем в filteredObj
+        const {id, level, birthday, ...filteredObj} = player;
+
+        $.ajax({
+            url: `rest/players/${player.id}`,
+            method: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(filteredObj),
+            success: function (data) {
+                console.log(data);
+            }
+        })
+    }
+
+    function toggleBtnEdit(button, player) {
         const $button = $(button);
-        const $deleteButton = $button.closest('tr').find('.btn-img-delete');
+        const $row = $button.closest('tr');
+        const $deleteButton = $row.find('.btn-img-delete');
 
-        $button.toggleClass("checked");
+        $button.toggleClass("editable");
 
-        if ($button.hasClass("checked")) {
+        if ($button.hasClass("editable")) {
             $deleteButton.hide();
+            switchToFormPlayer(button);
         } else {
             $deleteButton.show();
+            player.name = $row.find('name input').val();
+            player.title = $row.find('title').text();
+            player.race = $row.find('race').text();
+            player.profession = $row.find('profession').text();
+            player.banned = $row.find('banned').text();
+            updatePlayer(player);
         }
     }
 
@@ -147,7 +174,7 @@
         $tdSelectField.html($select);
     }
 
-    function switchToFormPlayer(button, player) {
+    function switchToFormPlayer(button) {
         // Преобразование в Input поля - name и title
         const $tdTextField = $(button).closest('tr').find('.text-field');
         $tdTextField.each(function () {
@@ -173,8 +200,13 @@
             {value: "WARLOCK", text: "WARLOCK"},
             {value: "DRUID", text: "DRUID"}
         ]
+        const optionsBool = [
+            {value: "true", text: "true"},
+            {value: "false", text: "false"}
+        ]
         transformToSelectField(button, "race", optionsRace);
         transformToSelectField(button, "profession", optionsProfession);
+        transformToSelectField(button, "banned", optionsBool);
     }
 
     function getCountPages() {
