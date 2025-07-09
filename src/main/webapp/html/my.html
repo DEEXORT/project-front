@@ -1,44 +1,102 @@
-<html>
+<!DOCTYPE html>
 <head>
     <title>RPG</title>
     <script src=https://code.jquery.com/jquery-3.6.0.min.js></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="/css/my.css" rel="stylesheet">
     <meta content="text/html" charset="utf-8"/>
 </head>
 <body>
-<h1>RPG admin panel</h1>
-<div>
-    <select name="select-count" id="count-per-page" onchange="currentPage = 0; changeCountPerPage()">
-    </select>
-</div>
-<table id="table-players">
-    <thead>
-    <tr>
-        <th>#</th>
-        <th>Name</th>
-        <th>Title</th>
-        <th>Race</th>
-        <th>Profession</th>
-        <th>Level</th>
-        <th>Birthday</th>
-        <th>Banned</th>
-        <th>Edit</th>
-        <th>Delete</th>
-    </tr>
-    </thead>
-    <tbody>
+<div class="container">
+    <h1>RPG admin panel</h1>
+    <div>
+        <select name="select-count" id="count-per-page" onchange="currentPage = 0; changeCountPerPage()">
+        </select>
+    </div>
+    <table id="table-players">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Title</th>
+            <th>Race</th>
+            <th>Profession</th>
+            <th>Level</th>
+            <th>Birthday</th>
+            <th>Banned</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <div id="pagination">Pages:</div>
+    <br>
 
-    </tbody>
-</table>
-<div id="pagination">Pages:</div>
+    <form class="form-player" action="/rest/players" method="post">
+        <h3>Create new account</h3>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input id="name" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title:</label>
+            <input id="title" type="text" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label for="race" class="form-label">Race:</label>
+            <select name="race" id="race" class="form-control"></select>
+        </div>
+
+        <label for="profession" class="form-label">Profession:</label>
+        <select name="profession" id="profession" class="form-control"></select>
+
+        <label for="level" class="form-label">Level:</label>
+        <input id="level" type="text" class="form-control">
+
+        <label for="birthday" class="form-label">Birthday:</label>
+        <input id="birthday" type="date" class="form-control">
+
+        <label for="banned" class="form-label">Banned:</label>
+        <select name="banned" id="banned" class="form-control"></select>
+    </form>
+
+</div>
 
 <script>
     let countPlayers = 0;
     let countPerPage = 3;
     let currentPage = 0;
+    const RACES = [
+        {value: "HUMAN", text: "HUMAN"},
+        {value: "DWARF", text: "DWARF"},
+        {value: "ELF", text: "ELF"},
+        {value: "GIANT", text: "GIANT"},
+        {value: "ORC", text: "ORC"},
+        {value: "TROLL", text: "TROLL"},
+        {value: "HOBBIT", text: "HOBBIT"}
+    ]
+    const PROFESSIONS = [
+        {value: "WARRIOR", text: "WARRIOR"},
+        {value: "ROGUE", text: "ROGUE"},
+        {value: "SORCERER", text: "SORCERER"},
+        {value: "CLERIC", text: "CLERIC"},
+        {value: "PALADIN", text: "PALADIN"},
+        {value: "NAZGUL", text: "NAZGUL"},
+        {value: "WARLOCK", text: "WARLOCK"},
+        {value: "DRUID", text: "DRUID"}
+    ]
+    const BANNED = [
+        {value: "true", text: "true"},
+        {value: "false", text: "false"}
+    ]
 
     $(document).ready(function () {
         getCountPlayers(); // Получение общего числа игроков
+        createFormPlayer() // Создание полей для формы на создание игрока
     })
 
     function getCountPlayers() {
@@ -55,15 +113,42 @@
                 }
                 updateCountPerPage(); // Получение числа игроков на странице
                 getCountPages(); // Обновление пагинации
-                getPlayers(countPerPage); // Запрос на получение листа игроков
+                getPlayers(); // Запрос на получение листа игроков
             }
         })
     }
 
+    function createFormPlayer() {
+        // options для RACE
+        $.each(RACES, function (_, option) {
+            $('#race').append($('<option>', {
+                value: option.value,
+                text: option.text
+            }))
+        })
+
+        // options для Profession
+        $.each(PROFESSIONS, function (_, option) {
+            $('#profession').append($('<option>', {
+                value: option.value,
+                text: option.text
+            }))
+        })
+
+        // options для Banned
+        $.each(BANNED, function (_, option) {
+            $('#banned').append($('<option>', {
+                value: option.value,
+                text: option.text
+            }))
+        })
+    }
+
+
     function changeCountPerPage() {
         updateCountPerPage();
         getCountPages(); // Обновление пагинации
-        getPlayers(countPerPage); // Запрос на получение листа игроков
+        getPlayers(); // Запрос на получение листа игроков
     }
 
     function updateCountPerPage() {
@@ -72,22 +157,18 @@
     }
 
 
-    function getPlayers(pageSize) {
+    function getPlayers() {
         $.ajax({
             url: "rest/players/",
             method: "get",
             dataType: 'json',
             data: {
                 pageNumber: currentPage,
-                pageSize: pageSize
+                pageSize: countPerPage
             },
             success: function (response) {
                 // Очищаем тело таблицы
                 $('#table-players tbody').empty();
-
-                const $form = $('<form>', {
-                    method: "post"
-                });
 
                 $.each(response, function (index, player) {
                     let date = new Date(player.birthday),
@@ -132,7 +213,7 @@
             dataType: "json",
             data: JSON.stringify(filteredObj),
             success: function () {
-                getPlayers(countPerPage);
+                getPlayers();
             }
         })
     }
@@ -163,14 +244,14 @@
     function transformToSelectField(button, classField, optionsArrayObject) {
         // Преобразование поля classField в select
         const $tdSelectField = $(button).closest('tr').find('.' + classField);
-        const valRace = $tdSelectField.text();
+        const value = $tdSelectField.text();
 
         const $select = $('<select>');
         $.each(optionsArrayObject, function (_, option) {
             $select.append($('<option>', {
                 value: option.value,
                 text: option.text,
-                selected: option.text === valRace
+                selected: option.text === value
             }))
         })
         $tdSelectField.html($select);
@@ -183,32 +264,11 @@
             const value = $(this).text();
             $(this).html('<input type="text" value="' + value + '">');
         });
-        const optionsRace = [
-            {value: "HUMAN", text: "HUMAN"},
-            {value: "DWARF", text: "DWARF"},
-            {value: "ELF", text: "ELF"},
-            {value: "GIANT", text: "GIANT"},
-            {value: "ORC", text: "ORC"},
-            {value: "TROLL", text: "TROLL"},
-            {value: "HOBBIT", text: "HOBBIT"}
-        ]
-        const optionsProfession = [
-            {value: "WARRIOR", text: "WARRIOR"},
-            {value: "ROGUE", text: "ROGUE"},
-            {value: "SORCERER", text: "SORCERER"},
-            {value: "CLERIC", text: "CLERIC"},
-            {value: "PALADIN", text: "PALADIN"},
-            {value: "NAZGUL", text: "NAZGUL"},
-            {value: "WARLOCK", text: "WARLOCK"},
-            {value: "DRUID", text: "DRUID"}
-        ]
-        const optionsBool = [
-            {value: "true", text: "true"},
-            {value: "false", text: "false"}
-        ]
-        transformToSelectField(button, "race", optionsRace);
-        transformToSelectField(button, "profession", optionsProfession);
-        transformToSelectField(button, "banned", optionsBool);
+
+
+        transformToSelectField(button, "race", RACES);
+        transformToSelectField(button, "profession", PROFESSIONS);
+        transformToSelectField(button, "banned", BANNED);
     }
 
     function getCountPages() {

@@ -29,3 +29,7 @@ table, th, td {
     width: 40px;
     height: 40px;
 }
+
+.form-player {
+    width: 400px;
+}
