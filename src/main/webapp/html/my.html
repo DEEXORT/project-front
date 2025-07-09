@@ -72,14 +72,14 @@
     }
 
 
-    function getPlayers(count) {
+    function getPlayers(pageSize) {
         $.ajax({
             url: "rest/players/",
             method: "get",
             dataType: 'json',
             data: {
                 pageNumber: currentPage,
-                pageSize: count
+                pageSize: pageSize
             },
             success: function (response) {
                 // Очищаем тело таблицы
@@ -131,8 +131,8 @@
             contentType: "application/json",
             dataType: "json",
             data: JSON.stringify(filteredObj),
-            success: function (data) {
-                console.log(data);
+            success: function () {
+                getPlayers(countPerPage);
             }
         })
     }
@@ -149,12 +149,14 @@
             switchToFormPlayer(button);
         } else {
             $deleteButton.show();
-            player.name = $row.find('name input').val();
-            player.title = $row.find('title').text();
-            player.race = $row.find('race').text();
-            player.profession = $row.find('profession').text();
-            player.banned = $row.find('banned').text();
+            player.name = $row.find('.name input').val();
+            player.title = $row.find('.title input').val();
+            player.race = $row.find('.race select').val();
+            player.profession = $row.find('.profession select').val();
+            player.banned = $row.find('.banned select').val();
+
             updatePlayer(player);
+
         }
     }
 
