@@ -14,7 +14,7 @@
         crossorigin="anonymous"></script>
 <div class="container mt-3">
     <h1>RPG Admin Panel</h1>
-    <div>
+    <div class="mb-3">
         <select name="select-count" id="count-per-page" class="form-select form-select-sm" style="width: 65px"
                 onchange="currentPage = 0; changeCountPerPage()">
         </select>
@@ -137,6 +137,7 @@
                 // data - количество игроков
                 countPlayers = data;
                 // Выпадающее меню с выбором отображаемого списка
+                $('#count-per-page').empty();
                 for (let i = 3; i < 21; i++) {
                     $('#count-per-page').append($('<option>').attr("value", i).text(i));
                 }
@@ -338,10 +339,6 @@
         // Задаем количество страниц в зависимости от выбранного отображаемого кол-ва игроков на странице
         for (let i = 0; i < (countPlayers / countPerPage); i++) {
             const activePage = i === currentPage ? 'active' : '';
-            // $('#pagination').append($('<button>').addClass("page").addClass(activePage).text(i + 1).click(function () {
-            //     currentPage = i;
-            //     changeCountPerPage();
-            // }));
             $('#pagination')
                 .append($('<li>')
                     .addClass("page-item"))
