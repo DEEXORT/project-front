@@ -14,7 +14,7 @@
         <select name="select-count" id="count-per-page" onchange="currentPage = 0; changeCountPerPage()">
         </select>
     </div>
-    <table id="table-players">
+    <table id="table-players" class="table">
         <thead>
         <tr>
             <th>#</th>
@@ -37,31 +37,43 @@
     <form class="form-player" action="/rest/players" method="post">
         <h3>Create new account</h3>
         <div class="mb-3">
-            <label for="name" class="form-label">Name:</label>
-            <input id="name" type="text" class="form-control">
+            <label for="form-name" class="form-label">Name:</label>
+            <input name="name" id="form-name" type="text" class="form-control">
         </div>
 
         <div class="mb-3">
-            <label for="title" class="form-label">Title:</label>
-            <input id="title" type="text" class="form-control">
+            <label for="form-title" class="form-label">Title:</label>
+            <input name="title" id="form-title" type="text" class="form-control">
         </div>
 
         <div class="mb-3">
-            <label for="race" class="form-label">Race:</label>
-            <select name="race" id="race" class="form-control"></select>
+            <label for="form-race" class="form-label">Race:</label>
+            <select name="race" id="form-race" class="form-control"></select>
         </div>
 
-        <label for="profession" class="form-label">Profession:</label>
-        <select name="profession" id="profession" class="form-control"></select>
+        <div class="mb-3">
+            <label for="form-profession" class="form-label">Profession:</label>
+            <select name="profession" id="form-profession" class="form-control"></select>
+        </div>
 
-        <label for="level" class="form-label">Level:</label>
-        <input id="level" type="text" class="form-control">
+        <div class="mb-3">
+            <label for="form-level" class="form-label">Level:</label>
+            <input name="label" id="form-level" type="text" class="form-control">
+        </div>
 
-        <label for="birthday" class="form-label">Birthday:</label>
-        <input id="birthday" type="date" class="form-control">
+        <div class="mb-3">
+            <label for="form-birthday" class="form-label">Birthday:</label>
+            <input name="birthday" id="form-birthday" type="date" class="form-control">
+        </div>
 
-        <label for="banned" class="form-label">Banned:</label>
-        <select name="banned" id="banned" class="form-control"></select>
+        <div class="mb-3">
+            <label for="form-banned" class="form-label">Banned:</label>
+            <select name="banned" id="form-banned" class="form-control"></select>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" onclick="createPlayer(event)">Save</button>
+        </div>
     </form>
 
 </div>
@@ -118,10 +130,35 @@
         })
     }
 
+    function createPlayer(event) {
+        event.preventDefault();
+
+        const player = {
+            name: $('#form-name').val(),
+            title: $('#form-title').val(),
+            race: $('#form-race').val(),
+            profession: $('#form-profession').val(),
+            level: parseInt($('#form-level').val()),
+            birthday: new Date($('#form-birthday').val()).getTime(),
+            banned: $('#form-banned').val() === "true"
+        }
+        $.ajax({
+            url: "rest/players",
+            method: "post",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(player),
+            success: function () {
+                getPlayers();
+                $('.form-player')[0].reset();
+            }
+        })
+    }
+
     function createFormPlayer() {
         // options для RACE
         $.each(RACES, function (_, option) {
-            $('#race').append($('<option>', {
+            $('#form-race').append($('<option>', {
                 value: option.value,
                 text: option.text
             }))
@@ -129,7 +166,7 @@
 
         // options для Profession
         $.each(PROFESSIONS, function (_, option) {
-            $('#profession').append($('<option>', {
+            $('#form-profession').append($('<option>', {
                 value: option.value,
                 text: option.text
             }))
@@ -137,7 +174,7 @@
 
         // options для Banned
         $.each(BANNED, function (_, option) {
-            $('#banned').append($('<option>', {
+            $('#form-banned').append($('<option>', {
                 value: option.value,
                 text: option.text
             }))
